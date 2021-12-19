@@ -104,7 +104,15 @@ namespace ShopProject
             string zTokenL = "";
             if(!HeadersListP.ContainsKey("Token"))
             {
-                return zTokenL;
+                if(!HeadersListP.ContainsKey("token"))
+                {
+                    return zTokenL;
+                }
+                else
+                {
+                    HeadersListP.TryGetValue("token", out zTokenL);
+                    return zTokenL;
+                }
             }
             HeadersListP.TryGetValue("Token", out zTokenL);
             return zTokenL;

@@ -270,13 +270,13 @@ namespace ShopProject
             try
             {
                 Dictionary<string, string> HeadersListL = Utility.GetHeadersDictionary(HttpRequestP);
-                if(!HeadersListL.ContainsKey("Token"))
+                if(!HeadersListL.ContainsKey("token"))
                 {
                     aResultL.MarkAsFailed(HttpStatusCode.BadRequest, "Invalid request. Token not found.");
                     return aResultL;
                 }
                 string zTokenL;
-                HeadersListL.TryGetValue("Token", out zTokenL);
+                HeadersListL.TryGetValue("token", out zTokenL);
                 aResultL = ValidateToken(zTokenL);
                 if(aResultL.HasFailed())
                 {
@@ -343,6 +343,7 @@ namespace ShopProject
                 if(string.IsNullOrEmpty(zTokenL))
                 {
                     aResultL.MarkAsFailed(HttpStatusCode.BadRequest, "Invalid request. Token not found.");
+                    return aResultL;
                 }
 
                 ActiveLoginClass ActiveLoginClassL = null;
@@ -454,7 +455,7 @@ namespace ShopProject
                 LoginClassL = Utility.ConvertJsonToObject<LoginClass>(zResponseL);
 
                 DataTable DataTableL = new DataTable();
-                string zQueryL = "EXEC dbo.sp_Create_System_Admin N'" + SystemAdminClassP.Name + "', N'" + LoginClassL.Id + "'";
+                string zQueryL = "EXEC dbo.sp_Create_System_Admin N'" + SystemAdminClassP.Name + "', N'" + LoginClassL.Login + "'";
                 SqlCommand SqlCommandL = new SqlCommand(zQueryL);
                 DataTableL = GetData(SqlCommandL);
                 zResponseP = SystemAdminClassP.Name + " system admin created successfully.";
@@ -728,7 +729,7 @@ namespace ShopProject
                 LoginClassL = Utility.ConvertJsonToObject<LoginClass>(zResponseL);
 
                 DataTable DataTableL = new DataTable();
-                string zQueryL = "EXEC dbo.sp_Create_Shop_Owner N'" + ShopOwnerWithLoginClassP.Name + "', N'" + LoginClassL.Id + "'";
+                string zQueryL = "EXEC dbo.sp_Create_Shop_Owner N'" + ShopOwnerWithLoginClassP.Name + "', N'" + LoginClassL.Login + "'";
                 SqlCommand SqlCommandL = new SqlCommand(zQueryL);
                 DataTableL = GetData(SqlCommandL);
                 zResponseP = ShopOwnerWithLoginClassP.Name + " Shop owner created successfully.";
@@ -910,7 +911,7 @@ namespace ShopProject
                 LoginClassL = Utility.ConvertJsonToObject<LoginClass>(zResponseL);
 
                 DataTable DataTableL = new DataTable();
-                string zQueryL = "EXEC dbo.sp_Create_Customer N'" + CustomerWithLoginClassP.Name + "', N'" + LoginClassL.Id + "'";
+                string zQueryL = "EXEC dbo.sp_Create_Customer N'" + CustomerWithLoginClassP.Name + "', N'" + LoginClassL.Login + "'";
                 SqlCommand SqlCommandL = new SqlCommand(zQueryL);
                 DataTableL = GetData(SqlCommandL);
                 zResponseP = CustomerWithLoginClassP.Name + " Customer created successfully.";
@@ -1869,7 +1870,7 @@ namespace ShopProject
                     zSearchConditionClauseL += " AND " + zRatingSearchConditionL;
                 }
 
-                string zQueryL = "SELECT " + zSelectClauseL + " FROM from Product left join Brand on Product.Brand_Id = Brand.Id WHERE (" + zSearchConditionClauseL + ")";
+                string zQueryL = "SELECT " + zSelectClauseL + " FROM Product left join Brand on Product.Brand_Id = Brand.Id WHERE (" + zSearchConditionClauseL + ")";
                 if(!string.IsNullOrEmpty(zOrderByClauseL))
                 {
                     zQueryL += " ORDER BY " + zOrderByClauseL;
