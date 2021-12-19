@@ -1,0 +1,201 @@
+CREATE TABLE [Login] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Login varchar(255) NOT NULL UNIQUE,
+	Password varchar(255) NOT NULL,
+  CONSTRAINT [PK_LOGIN] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [System_Admin] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Name varchar(255) NOT NULL,
+	Login_Id varchar(255) NOT NULL,
+  CONSTRAINT [PK_SYSTEM_ADMIN] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Shop_Request] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	IsRequestApproved integer NOT NULL DEFAULT '0',
+	Shop_Owner_Id integer,
+	Shop_Id integer UNIQUE,
+  CONSTRAINT [PK_SHOP_REQUEST] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Shop_Owner] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Name varchar(255) NOT NULL,
+	Login_Id varchar(255) NOT NULL,
+  CONSTRAINT [PK_SHOP_OWNER] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Shop] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Name varchar(255) NOT NULL,
+	Shop_Owner_Id integer UNIQUE,
+  CONSTRAINT [PK_SHOP] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Product] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Name varchar(1000) NOT NULL,
+	Price float NOT NULL,
+	User_Rating integer,
+	Brand_Id integer,
+	Delivery_Time datetime,
+	Shop_Id integer,
+  CONSTRAINT [PK_PRODUCT] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Brand] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Name varchar(255) NOT NULL,
+  CONSTRAINT [PK_BRAND] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Customer] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Name varchar(255) NOT NULL,
+	Login_Id varchar(255) NOT NULL,
+  CONSTRAINT [PK_CUSTOMER] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Shopping_Cart] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Product_Id integer NOT NULL,
+	Customer_Id integer NOT NULL,
+  CONSTRAINT [PK_SHOPPING_CART] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Check_Out] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Customer_Id integer NOT NULL,
+	Check_Out_Amount float NOT NULL,
+	Check_Out_DateTime datetime NOT NULL,
+  CONSTRAINT [PK_CHECK_OUT] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [Check_Out_Products] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Product_Id integer NOT NULL,
+	Check_Out_Id integer,
+  CONSTRAINT [PK_CHECK_OUT_PRODUCTS] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+
+CREATE TABLE [Active_Logins] (
+	Id integer IDENTITY(1,1) NOT NULL,
+	Login varchar(255) NOT NULL UNIQUE,
+	Session_Key varchar(1000) NOT NULL,
+	Expiration_Time datetime NOT NULL,
+  CONSTRAINT [PK_ACTIVE_LOGINS] PRIMARY KEY CLUSTERED
+  (
+  [Id] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+
+ALTER TABLE [Shop_Request] WITH CHECK ADD CONSTRAINT [Shop_Request_fk0] FOREIGN KEY ([Shop_Owner_Id]) REFERENCES [Shop_Owner]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Shop_Request] CHECK CONSTRAINT [Shop_Request_fk0]
+GO
+ALTER TABLE [Shop_Request] WITH CHECK ADD CONSTRAINT [Shop_Request_fk1] FOREIGN KEY ([Shop_Id]) REFERENCES [Shop]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Shop_Request] CHECK CONSTRAINT [Shop_Request_fk1]
+GO
+
+
+ALTER TABLE [Shop] WITH CHECK ADD CONSTRAINT [Shop_fk0] FOREIGN KEY ([Shop_Owner_Id]) REFERENCES [Shop_Owner]([Id])
+--ON UPDATE CASCADE
+GO
+ALTER TABLE [Shop] CHECK CONSTRAINT [Shop_fk0]
+GO
+
+ALTER TABLE [Product] WITH CHECK ADD CONSTRAINT [Product_fk0] FOREIGN KEY ([Brand_Id]) REFERENCES [Brand]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Product] CHECK CONSTRAINT [Product_fk0]
+GO
+ALTER TABLE [Product] WITH CHECK ADD CONSTRAINT [Product_fk1] FOREIGN KEY ([Shop_Id]) REFERENCES [Shop]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Product] CHECK CONSTRAINT [Product_fk1]
+GO
+
+
+
+ALTER TABLE [Shopping_Cart] WITH CHECK ADD CONSTRAINT [Shopping_Cart_fk0] FOREIGN KEY ([Product_Id]) REFERENCES [Product]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Shopping_Cart] CHECK CONSTRAINT [Shopping_Cart_fk0]
+GO
+ALTER TABLE [Shopping_Cart] WITH CHECK ADD CONSTRAINT [Shopping_Cart_fk1] FOREIGN KEY ([Customer_Id]) REFERENCES [Customer]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Shopping_Cart] CHECK CONSTRAINT [Shopping_Cart_fk1]
+GO
+
+ALTER TABLE [Check_Out] WITH CHECK ADD CONSTRAINT [Check_Out_fk0] FOREIGN KEY ([Customer_Id]) REFERENCES [Customer]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Check_Out] CHECK CONSTRAINT [Check_Out_fk0]
+GO
+
+ALTER TABLE [Check_Out_Products] WITH CHECK ADD CONSTRAINT [Check_Out_Products_fk0] FOREIGN KEY ([Product_Id]) REFERENCES [Product]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Check_Out_Products] CHECK CONSTRAINT [Check_Out_Products_fk0]
+GO
+ALTER TABLE [Check_Out_Products] WITH CHECK ADD CONSTRAINT [Check_Out_Products_fk1] FOREIGN KEY ([Check_Out_Id]) REFERENCES [Check_Out]([Id])
+ON UPDATE CASCADE
+GO
+ALTER TABLE [Check_Out_Products] CHECK CONSTRAINT [Check_Out_Products_fk1]
+GO
+
+ALTER TABLE Shop_Request
+Add Request_Date_Time datetime

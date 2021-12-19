@@ -1,0 +1,313 @@
+--Stored Procedure of ShopDB
+
+drop procedure if exists sp_Get_All_Shop_Request
+go
+create procedure sp_Get_All_Shop_Request
+as begin
+	Select Shop_Request.Id, Shop_Request.IsRequestApproved, Shop_Request.Request_Date_Time, Shop_Owner.Id as Shop_OwnerId, Shop_Owner.Name as ShopOwner, Shop.Id as ShopId, Shop.Name as ShopName
+	from Shop_Request
+	left join Shop_Owner on Shop_Request.Shop_Owner_Id = Shop_Owner.Id
+	left join Shop on Shop_Request.Shop_Id = Shop.Id
+	order by Shop_Request.Request_Date_Time DESC
+End;
+go
+
+
+drop procedure if exists sp_Get_Not_Approved_Shop_Request
+go
+create procedure sp_Get_Not_Approved_Shop_Request
+as begin
+	Select Shop_Request.Id, Shop_Request.IsRequestApproved, Shop_Owner.Id as Shop_OwnerId, Shop_Owner.Name as ShopOwner, Shop.Id as ShopId, Shop.Name as ShopName
+	from Shop_Request
+	left join Shop_Owner on Shop_Request.Shop_Owner_Id = Shop_Owner.Id
+	left join Shop on Shop_Request.Shop_Id = Shop.Id
+	where Shop_Request.IsRequestApproved = N'0'
+	order by Shop_Request.Request_Date_Time DESC
+End;
+go
+
+drop procedure if exists sp_Get_Approved_Shop_Request
+go
+create procedure sp_Get_Approved_Shop_Request
+as begin
+	Select Shop_Request.Id, Shop_Request.IsRequestApproved, Shop_Owner.Id as Shop_OwnerId, Shop_Owner.Name as ShopOwner, Shop.Id as ShopId, Shop.Name as ShopName
+	from Shop_Request
+	left join Shop_Owner on Shop_Request.Shop_Owner_Id = Shop_Owner.Id
+	left join Shop on Shop_Request.Shop_Id = Shop.Id
+	where Shop_Request.IsRequestApproved = N'1'
+	order by Shop_Request.Request_Date_Time DESC
+End;
+go
+
+DROP PROCEDURE IF EXISTS sp_Create_Login
+go
+CREATE PROCEDURE sp_Create_Login (@Login varchar(200), @Password varchar(200))
+AS BEGIN
+	insert into Login (Login, Password) VALUES (@Login, @Password)
+END;
+go
+
+
+DROP PROCEDURE IF EXISTS sp_Get_Login_By_Login
+go
+CREATE PROCEDURE sp_Get_Login_By_Login (@Login varchar(200))
+AS BEGIN
+	select * from Login where Login = @Login
+END;
+go
+--EXEC dbo.sp_Get_Login_By_Login N'u';
+
+
+DROP PROCEDURE IF EXISTS sp_Create_Active_Login
+go
+CREATE PROCEDURE sp_Create_Active_Login (@Login varchar(200), @SessionKey varchar(500), @ExpirationTime DateTime)
+AS BEGIN
+	INSERT INTO Active_Logins (Login, Session_Key, Expiration_Time) VALUES (@Login, @SessionKey, @ExpirationTime)
+END;
+go
+
+DROP PROCEDURE IF EXISTS sp_Get_Top_1_Active_Login
+go
+CREATE PROCEDURE sp_Get_Top_1_Active_Login (@Login varchar(200))
+AS BEGIN
+	SELECT TOP 1 * from Active_Logins where Login = @Login order by Id DESC
+END;
+
+
+DROP PROCEDURE IF EXISTS sp_Delete_Active_Login
+go
+CREATE PROCEDURE sp_Delete_Active_Login (@Id integer)
+AS BEGIN
+	delete from Active_Logins where Id = @Id
+END;
+go
+
+DROP PROCEDURE IF EXISTS sp_Get_All_System_Admin
+go
+CREATE PROCEDURE sp_Get_All_System_Admin
+AS BEGIN
+	select Id, Name from System_Admin
+End;
+go
+
+--exec dbo.sp_Get_All_System_Admin
+
+DROP PROCEDURE IF EXISTS sp_Get_All_System_Admin_By_Id
+go
+CREATE PROCEDURE sp_Get_All_System_Admin_By_Id (@Id integer)
+AS BEGIN
+	select Id, Name from System_Admin where Id = @Id
+End;
+go
+
+--exec dbo.sp_Get_All_System_Admin_By_Id 1
+
+
+DROP PROCEDURE IF EXISTS sp_Create_System_Admin
+go
+CREATE PROCEDURE sp_Create_System_Admin(@NAME varchar(1000), @LoginId integer)
+AS BEGIN
+	insert into System_Admin (Name, Login_Id) values (@NAME, @LoginId)
+End;
+go
+
+
+
+
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Shop_Owner
+go
+CREATE PROCEDURE sp_Get_All_Shop_Owner
+AS BEGIN
+	select Id, Name from Shop_Owner
+End;
+go
+
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Shop_Owner_By_Id
+go
+CREATE PROCEDURE sp_Get_All_Shop_Owner_By_Id (@Id integer)
+AS BEGIN
+	select Id, Name from Shop_Owner where Id = @Id
+End;
+go
+
+DROP PROCEDURE IF EXISTS sp_Create_Shop_Owner
+go
+CREATE PROCEDURE sp_Create_Shop_Owner(@NAME varchar(1000), @LoginId integer)
+AS BEGIN
+	insert into Shop_Owner (Name, Login_Id) values (@NAME, @LoginId)
+End;
+go
+
+
+
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Customer
+go
+CREATE PROCEDURE sp_Get_All_Customer
+AS BEGIN
+	select Id, Name from Customer
+End;
+go
+
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Customer_By_Id
+go
+CREATE PROCEDURE sp_Get_All_Customer_By_Id (@Id integer)
+AS BEGIN
+	select Id, Name from Customer where Id = @Id
+End;
+go
+
+DROP PROCEDURE IF EXISTS sp_Create_Customer
+go
+CREATE PROCEDURE sp_Create_Customer(@NAME varchar(1000), @LoginId integer)
+AS BEGIN
+	insert into Customer (Name, Login_Id) values (@NAME, @LoginId)
+End;
+go
+
+
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Shop
+go
+CREATE PROCEDURE sp_Get_All_Shop
+AS BEGIN
+	select Id, Name, Shop_Owner_Id as ShopOwnerId from Shop
+End;
+go
+
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Shop_By_Id
+go
+CREATE PROCEDURE sp_Get_All_Shop_By_Id (@Id integer)
+AS BEGIN
+	select Id, Name, Shop_Owner_Id as ShopOwnerId from Shop where Id = @Id
+End;
+go
+
+
+DROP PROCEDURE IF EXISTS sp_Create_Shop
+go
+CREATE PROCEDURE sp_Create_Shop (@Name varchar(500), @ShopOwnerId integer)
+AS BEGIN
+	insert into Shop (Name, Shop_Owner_Id) values (@Name, @ShopOwnerId)
+END;
+go
+
+
+DROP PROCEDURE IF EXISTS sp_Get_Shop_Request_By_Shop_Id
+go
+CREATE PROCEDURE sp_Get_Shop_Request_By_Shop_Id (@ShopId integer)
+AS BEGIN
+	select Shop.Id as ShopId, Shop.Name as ShopName, Shop_Request.Id as Shop_RequestId, Shop_Request.IsRequestApproved 
+	from Shop left join Shop_Request on Shop.Id = Shop_Request.Shop_Id where Shop.Id = @ShopId
+END;
+go
+
+DROP PROCEDURE IF EXISTS sp_Get_Products_By_Shop_Id
+go
+CREATE PROCEDURE sp_Get_Products_By_Shop_Id (@ShopId integer)
+AS BEGIN
+	select Shop.Id as ShopId, Shop.Name as ShopName, Product.Id as ProductId, Product.Name as ProductName,
+	Product.Price, Product.User_Rating
+	from Shop left join Product on Shop.Id = Product.Shop_Id where Shop.Id = @ShopId
+END;
+go
+
+DROP PROCEDURE IF EXISTS sp_Create_Shop_Request
+go
+CREATE PROCEDURE sp_Create_Shop_Request (@ShopOwnerId integer, @ShopId integer, @IsRequestApproved integer)
+AS BEGIN
+	insert into Shop_Request (IsRequestApproved, Shop_Owner_Id, Shop_Id) values (@IsRequestApproved, @ShopOwnerId, @ShopId)
+END;
+go
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS sp_Create_Brand
+go
+CREATE PROCEDURE sp_Create_Brand(@NAME varchar(1000))
+AS BEGIN
+	insert into Brand (Name) values (@NAME)
+End;
+go
+
+
+--EXEC dbo.sp_Create_Brand N'Puma'
+
+--select * from Brand
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Brand
+go
+CREATE PROCEDURE sp_Get_All_Brand
+AS BEGIN
+	select * from Brand
+End;
+go
+
+
+--EXEC dbo.sp_Get_All_Brand
+
+
+DROP PROCEDURE IF EXISTS sp_Get_All_Brand_By_Id
+go
+CREATE PROCEDURE sp_Get_All_Brand_By_Id(@Id integer)
+AS BEGIN
+	select * from Brand where Id = @Id
+End;
+go
+
+
+--EXEC sp_Get_All_Brand_By_Id 1
+
+
+
+
+DROP PROCEDURE IF EXISTS sp_Update_Brand 
+go
+CREATE PROCEDURE sp_Update_Brand (@Name varchar(1000), @ID integer)
+AS BEGIN
+	UPDATE Brand SET Name = @Name where Id = @ID
+END;
+go
+
+--exec dbo.sp_Get_All_Brand
+
+--exec dbo.sp_Update_Brand N'Adidas', 1
+
+
+
+DROP PROCEDURE IF EXISTS sp_Get_Cart_Products_By_Customer_Id
+go
+CREATE PROCEDURE sp_Get_Cart_Products_By_Customer_Id (@CustomerId integer)
+AS BEGIN
+	SELECT Shopping_Cart.Id as CartId, Product.Id as ProductId, Product.Name as ProductName,
+	Product.Price, Product.User_Rating, Customer.Id as CustomerId, Customer.Name as CustomerName
+	from Shopping_Cart 
+	left join Product on Shopping_Cart.Product_Id = Product.Id
+	left join Customer on Shopping_Cart.Customer_Id = Customer.Id
+	where Shopping_Cart.Customer_Id = @CustomerId
+END;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
